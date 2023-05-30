@@ -1,7 +1,7 @@
 import gym
 import tensorflow as tf
 
-USING_RANDOM = False
+USING_RANDOM = True
 
 model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(32, activation='relu', input_shape=(4,)),
@@ -11,7 +11,10 @@ model = tf.keras.models.Sequential([
 
 env = gym.make('CartPole-v1',render_mode='human')
 
-for i_episode in range(20):
+
+
+for i_episode in range(2):
+    score = 0
     observation = env.reset()[0]
     for t in range(100):
         env.render()
@@ -27,8 +30,8 @@ for i_episode in range(20):
         print(action)# 0 or 1 , 0: left , 1: right
         observation, reward, done,_ ,info = env.step(action)
 
-        #更新parameter
+        score += reward
 
         if done:
-            print("Episode finished after {} timesteps".format(t+1))
+            print("Episode finished after {} timesteps , score: {}".format(t+1,score))
             break
