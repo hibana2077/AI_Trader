@@ -1,3 +1,4 @@
+
 from collections import deque
 import random
 import gym
@@ -73,7 +74,7 @@ agent = DQN()
 for i in range(episodes):
     s = env.reset()[0]#return observation and info_dict
     score = 0
-    while True:
+    for time in range(200):
         env.render()
         a = agent.act(s)
         next_s, reward, done, _, info = env.step(a)
