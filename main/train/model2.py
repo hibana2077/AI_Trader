@@ -9,7 +9,7 @@ from keras import models, layers, optimizers
 class DQN(object):
     def __init__(self):
         self.step = 0
-        self.update_freq = 200  # 模型更新频率
+        self.update_freq = 100  # 模型更新频率
         self.replay_size = 2000  # 训练集大小
         self.replay_queue = deque(maxlen=self.replay_size)
         self.model = self.create_model()
@@ -84,9 +84,9 @@ for i in range(episodes):
         # print(next_s, reward, done, info)
         s = next_s
         if done:
-            score_list.append(score)
-            print('episode:', i, 'score:', score, 'max:', max(score_list))
             break
+    score_list.append(score)
+    print('episode:', i, 'score:', score, 'max:', max(score_list))
     # 最后10次的平均分大于 -160 时，停止并保存模型
     if np.mean(score_list[-10:]) > -160:
         agent.save_model()
