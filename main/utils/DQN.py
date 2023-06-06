@@ -37,7 +37,7 @@ class DQN(object):
 
     def act(self, s, epsilon=0.1):
         """預測動作"""
-        # 刚开始时，加一点随机成分，产生更多的状态
+        # 一開始用隨機的動作探索環境
         if np.random.uniform() < epsilon - self.step * 0.0002:
             return np.random.choice([0, 1, 2])
         return np.argmax(self.model.predict(np.array([s]),verbose=str(0))[0])
@@ -47,7 +47,7 @@ class DQN(object):
         self.model.save(file_path)
 
     def remember(self, s, a, next_s, reward):
-        """歷史紀錄，position >= 0.4时给額外的reward，快速收敛"""
+        """歷史紀錄，position >= 0.4时给額外的reward，快速收斂"""
         if next_s[0] >= 0.4:
             reward += 1
         self.replay_queue.append((s, a, next_s, reward))
