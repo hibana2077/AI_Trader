@@ -12,8 +12,8 @@ from keras import models, layers, optimizers
 class DQN(object):
     def __init__(self,update_freq=200,replay_size=2000,model_layers=[2,100,3]):
         self.step = 0
-        self.update_freq = 200  # 模型更新频率
-        self.replay_size = 2000  # 训练集大小
+        self.update_freq = update_freq  # 模型更新頻率
+        self.replay_size = replay_size  # 訓練集大小
         self.replay_queue = deque(maxlen=self.replay_size)
         self.model = self.create_model()
         self.target_model = self.create_model()
