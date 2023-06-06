@@ -1,7 +1,6 @@
 
 from collections import deque
 import random
-import gym
 import numpy as np
 from keras import models, layers, optimizers
 
