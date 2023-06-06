@@ -32,11 +32,11 @@ class DQN(object):
         return model
 
     def summary(self):
-        '''print model summary'''
+        '''輸出模型摘要資訊'''
         self.model.summary()
 
     def act(self, s, epsilon=0.1):
-        """预测动作"""
+        """預測動作"""
         # 刚开始时，加一点随机成分，产生更多的状态
         if np.random.uniform() < epsilon - self.step * 0.0002:
             return np.random.choice([0, 1, 2])
