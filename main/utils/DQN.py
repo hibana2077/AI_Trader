@@ -42,7 +42,7 @@ class DQN(object):
         self.model.save(file_path)
 
     def remember(self, s, a, next_s, reward):
-        """历史记录，position >= 0.4时给额外的reward，快速收敛"""
+        """歷史紀錄，position >= 0.4时给額外的reward，快速收敛"""
         if next_s[0] >= 0.4:
             reward += 1
         self.replay_queue.append((s, a, next_s, reward))
