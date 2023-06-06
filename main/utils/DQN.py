@@ -20,7 +20,7 @@ class DQN(object):
         self.layer_info = model_layers
 
     def create_model(self):
-        """创建一个隐藏层为100的神经网络"""
+        """創建一個神經網路"""
         STATE_DIM, ACTION_DIM = self.layer_info[0], self.layer_info[-1]
         model = models.Sequential([
             layers.Dense(100, input_dim=STATE_DIM, activation='relu'),
@@ -51,7 +51,7 @@ class DQN(object):
         if len(self.replay_queue) < self.replay_size:
             return
         self.step += 1
-        # 每 update_freq 步，将 model 的权重赋值给 target_model
+        # 每 update_freq 步，將 model 的权重赋值给 target_model
         if self.step % self.update_freq == 0:
             self.target_model.set_weights(self.model.get_weights())
 
