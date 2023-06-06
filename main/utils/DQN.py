@@ -43,6 +43,7 @@ class DQN(object):
         return np.argmax(self.model.predict(np.array([s]),verbose=str(0))[0])
 
     def save_model(self, file_path='MountainCar-v0-dqn.h5'):
+        """保存模型"""
         print('model saved')
         self.model.save(file_path)
 
