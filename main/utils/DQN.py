@@ -22,13 +22,18 @@ class DQN(object):
     def create_model(self):
         """創建一個神經網路"""
         STATE_DIM, ACTION_DIM = self.layer_info[0], self.layer_info[-1]
-        model = models.Sequential([
-            layers.Dense(100, input_dim=STATE_DIM, activation='relu'),
-            layers.Dense(ACTION_DIM, activation="linear")
-        ])
+        model = models.Sequential()
+        model.add(layers.Dense(self.layer_info[1], input_dim=STATE_DIM, activation='relu'))
+        for i in range(2,len(self.layer_info)-1):
+            model.add(layers.Dense(self.layer_info[i], activation='relu'))
+        model.add(layers.Dense(ACTION_DIM, activation="linear"))
         model.compile(loss='mean_squared_error',
-                      optimizer=optimizers.Adam(0.001))
+                        optimizer=optimizers.Adam(0.001))
         return model
+
+    def summary(self):
+        '''print model summary'''
+        self.model.summary()
 
     def act(self, s, epsilon=0.1):
         """预测动作"""
