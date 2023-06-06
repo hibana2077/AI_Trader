@@ -6,6 +6,7 @@ import numpy as np
 from keras import models, layers, optimizers
 
 """
+    這個檔案是用來實作DQN的
 """
 
 
