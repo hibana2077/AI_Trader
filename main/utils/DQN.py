@@ -30,6 +30,19 @@ class DQN(object):
         model.compile(loss='mean_squared_error',
                         optimizer=optimizers.Adam(0.001))
         return model
+    
+    def create_transformer_model(self):
+        """創建一個基於Transformer的神經網路"""
+        STATE_DIM, ACTION_DIM = self.layer_info[0], self.layer_info[-1]
+        model = models.Sequential()
+
+        #model
+        
+
+        #compile model
+        model.compile(loss='mean_squared_error',
+                        optimizer=optimizers.Adam(0.001))
+        return model
 
     def summary(self):
         '''輸出模型摘要資訊'''
@@ -57,7 +70,7 @@ class DQN(object):
         if len(self.replay_queue) < self.replay_size:
             return
         self.step += 1
-        # 每 update_freq 步，將 model 的权重赋值给 target_model
+        # 每 update_freq 步，將 model 的權重賦值给 target_model
         if self.step % self.update_freq == 0:
             self.target_model.set_weights(self.model.get_weights())
 
@@ -68,10 +81,10 @@ class DQN(object):
         Q = self.model.predict(s_batch)
         Q_next = self.target_model.predict(next_s_batch)
 
-        # 使用公式更新训练集中的Q值
+        # 使用公式更新訓練集中的Q值
         for i, replay in enumerate(replay_batch):
             _, a, _, reward = replay
             Q[i][a] = (1 - lr) * Q[i][a] + lr * (reward + factor * np.amax(Q_next[i]))
  
-        # 传入网络进行训练
+        # 使用編輯好的訓練集訓練神經網路
         self.model.fit(s_batch, Q, verbose=str(0))
