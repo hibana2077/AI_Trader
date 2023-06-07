@@ -31,10 +31,13 @@ render
 
 class Tradingenv(gym.Env):
     def __init__(self,data:pd.DataFrame,fee:float,initial_balance:float,slippage:float) -> None:
+        
+        self.init_date = data.index[0]
 
         self.data = data
         self.fee = fee
         self.initial_balance = initial_balance
+        self.balance = initial_balance
         self.slippage = slippage
 
         self.action_space = spaces.Discrete(3)
@@ -43,6 +46,8 @@ class Tradingenv(gym.Env):
         
 
     def reset(self):
+        self.balance = self.initial_balance
+        self.position = 0
         return observation,info
     
     def step(self,action):
