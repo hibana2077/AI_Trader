@@ -49,5 +49,5 @@ This is a side project I am working on to learn more about reinforcement learnin
 |   ├── lab
 │   │   └── lab.py
 ├── README.md
-├── requirements.txt
+└── requirements.txt
 ```
