@@ -54,7 +54,15 @@ class Tradingenv(gym.Env):
         self.reset()
         
     def _caculate_profit(self):
+        """計算收益"""
+        if self.position > 0:
+            profit = (self.data.Close-self.entry_price)/self.entry_price
+        elif self.position < 0:
+            profit = (self.entry_price-self.data.Close)/self.entry_price
+        else:
+            profit = 0
 
+        #total
 
     def reset(self):
         self.balance = self.initial_balance
