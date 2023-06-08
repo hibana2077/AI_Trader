@@ -29,6 +29,13 @@ step
 render
 """
 
+"""
+position:
+    + -> long
+    - -> short
+    0 -> no position
+"""
+
 class Tradingenv(gym.Env):
     def __init__(self,data:pd.DataFrame,fee:float,initial_balance:float,slippage:float) -> None:
         
@@ -39,15 +46,20 @@ class Tradingenv(gym.Env):
         self.initial_balance = initial_balance
         self.balance = initial_balance
         self.slippage = slippage
+        self.position = 0.0
+        self.entry_price = 0.0
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(low=0,high=1,shape=(2,))
         self.reset()
         
+    def _caculate_profit(self):
+
 
     def reset(self):
         self.balance = self.initial_balance
         self.position = 0
+
         return observation,info
     
     def step(self,action):
