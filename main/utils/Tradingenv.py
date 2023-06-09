@@ -55,14 +55,12 @@ class Tradingenv(gym.Env):
         
     def _caculate_profit(self):
         """計算收益"""
-        if self.position > 0:
-            profit = (self.data.Close-self.entry_price)/self.entry_price
-        elif self.position < 0:
-            profit = (self.entry_price-self.data.Close)/self.entry_price
-        else:
-            profit = 0
-
-        #total
+        profit = self.position * (self.data.Close - self.entry_price)
+        #if -(short) -> -15 * (90 - 120) = 450
+        #if +(long) -> 15 * (120 - 90) = 450
+        #既可以計算多單也可以計算空單，還不用加abs
+        #totalfee
+        totalfee = self.fee * (self.position * self.entry_price + self.data.Close)
 
     def reset(self):
         self.balance = self.initial_balance
