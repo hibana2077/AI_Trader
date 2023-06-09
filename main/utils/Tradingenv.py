@@ -23,8 +23,11 @@ init
     - fee: float
     - slippage: float
     - initial_balance: float
-    -
+    - position: float
+    - entry_price: float
 reset
+    return observation,info
+        observation: np.array([balance,position])
 step
 render
 """
