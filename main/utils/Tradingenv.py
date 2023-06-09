@@ -68,6 +68,7 @@ class Tradingenv(gym.Env):
     def reset(self):
         self.balance = self.initial_balance
         self.position = 0
+        self.entry_price = 0
 
         return observation,info
     
