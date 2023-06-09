@@ -61,6 +61,9 @@ class Tradingenv(gym.Env):
         #既可以計算多單也可以計算空單，還不用加abs
         #totalfee
         totalfee = self.fee * (self.position * (self.entry_price + closeprice))
+        #totalfee = 0.0004 * (15 * (90 + 120)) = 0.0004 * 15 * 210 = 1.26
+        #totalfee = 0.0004 * (15 * (120 + 90)) = 0.0004 * 15 * 210 = 1.26
+        return profit - totalfee
 
     def reset(self):
         self.balance = self.initial_balance
