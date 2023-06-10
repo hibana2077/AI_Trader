@@ -10,7 +10,7 @@ from keras import models, layers, optimizers
 
 
 class DQN(object):
-    def __init__(self,update_freq=200,replay_size=2000,model_layers=[2,100,3]):
+    def __init__(self,update_freq=200,replay_size=2000,model_layers=[2,100,3],data_mode='Orderbook'):
         self.step = 0
         self.update_freq = update_freq  # 模型更新頻率
         self.replay_size = replay_size  # 訓練集大小
@@ -18,9 +18,12 @@ class DQN(object):
         self.model = self.create_model()
         self.target_model = self.create_model()
         self.layer_info = model_layers
+        self.data_mode = data_mode
 
     def create_model(self):
-        """創建一個神經網路"""
+        """
+        這裡可能要多加mode判斷以及增加多頭輸入與Embedding層
+        """
         STATE_DIM, ACTION_DIM = self.layer_info[0], self.layer_info[-1]
         model = models.Sequential()
         model.add(layers.Dense(self.layer_info[1], input_dim=STATE_DIM, activation='relu'))
