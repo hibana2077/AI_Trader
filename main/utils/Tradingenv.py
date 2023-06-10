@@ -40,7 +40,7 @@ position:
 """
 
 class Tradingenv(gym.Env):
-    def __init__(self,data:pd.DataFrame,fee:float,initial_balance:float,slippage:float) -> None:
+    def __init__(self,data:pd.DataFrame,fee:float,initial_balance:float,slippage:float,mode:str) -> None:
         
         self.init_date = data.index[0]
 
@@ -51,6 +51,8 @@ class Tradingenv(gym.Env):
         self.slippage = slippage
         self.position = 0.0
         self.entry_price = 0.0
+        self.idx = 0
+        self.mode = mode #"Orderbook" or "Candlestick"
 
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(low=0,high=1,shape=(2,))
@@ -69,10 +71,34 @@ class Tradingenv(gym.Env):
         return profit - totalfee
 
     def reset(self):
+        '''
+        Reset the state of the environment and returns an initial observation.
+        Returns:
+            observation (list): the initial observation.
+            info (dict): diagnostic information useful for debugging.'''
         self.balance = self.initial_balance
         self.position = 0
         self.entry_price = 0
+        self.idx = 0
 
+        #data of price
+        if self.mode == "Orderbook":#current price, bid, ask
+            idx_data = self.data.iloc[self.idx]
+            bid = idx_data["bid"] #list
+            ask = idx_data["ask"] #list
+            closeprice = (bid[0] + ask[0]) / 2
+            observation = np.array([self.balance,self.position,closeprice,bid,ask])
+        elif self.mode == "Candlestick":#open, high, low, close, volume
+            idx_data = self.data.iloc[self.idx]
+            openprice = idx_data["open"]
+            highprice = idx_data["high"]
+            lowprice = idx_data["low"]
+            closeprice = idx_data["close"]
+            volume = idx_data["volume"]
+            observation = np.array([self.balance,self.position,openprice,highprice,lowprice,closeprice,volume])
+        else:
+            raise ValueError("mode should be set as Orderbook or Candlestick")
+        info = {}
         return observation,info
     
     def step(self,action):

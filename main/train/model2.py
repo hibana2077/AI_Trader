@@ -73,6 +73,7 @@ score_list = []  # 记录所有分数
 agent = DQN()
 for i in range(episodes):
     s = env.reset()[0]#return observation and info_dict
+    print(s)
     score = 0
     for time in range(200):
         env.render()
