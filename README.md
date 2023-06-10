@@ -8,6 +8,17 @@
 -->
 # AI Trader
 
+![python](https://img.shields.io/badge/python-3.10-blue?style=plastic-square&logo=python)
+![tensorflow](https://img.shields.io/badge/tensorflow-2.6.0-FF6F00?style=plastic-square&logo=tensorflow)
+![pandas](https://img.shields.io/badge/pandas-1.3.3-150458?style=plastic-square&logo=pandas)
+![numpy](https://img.shields.io/badge/numpy-1.21.2-013243?style=plastic-square&logo=numpy)
+![OpenAI Gym](https://img.shields.io/badge/OpenAI%20Gym-0.21.0-0081A5?style=plastic-square&logo=openai)
+![fastapi](https://img.shields.io/badge/fastapi-0.85.1-009688?style=plastic-square&logo=fastapi)
+![Guvicorn](https://img.shields.io/badge/Guvicorn-0.19.0-499848?style=plastic-square&logo=Gunicorn)
+![mongodb](https://img.shields.io/badge/mongodb-4.4.6-47A248?style=plastic-square&logo=mongodb)
+![docker](https://img.shields.io/badge/docker-20.10.8-2496ED?style=plastic-square&logo=docker)
+
+
 ## Introduction
 
 This is a side project I am working on to learn more about reinforcement learning and stock trading. The goal is to create a reinforcement learning agent that can learn to trade stocks in a simulated environment. The agent will be trained on historical stock data and will be able to make decisions on whether to buy, sell, or hold a stock. The agent will be rewarded for making good decisions and penalized for making bad decisions. The agent will be trained using the [OpenAI Gym](https://gym.openai.com/) toolkit, and Deep Q-Learning will useing the [TensorFlow](https://www.tensorflow.org/) library. Data will be collected from [Binance](https://www.binance.com/en) using the [ccxt](https://github.com/ccxt/ccxt) library.
