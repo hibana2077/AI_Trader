@@ -1,11 +1,4 @@
-'''
-Author: hibana2077 hibana2077@gmaill.com
-Date: 2023-05-31 11:14:02
-LastEditors: hibana2077 hibana2077@gmaill.com
-LastEditTime: 2023-05-31 11:38:05
-FilePath: /AI_Trader/main/utils/Tradingenv.py
-Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
-'''
+
 import gym
 import numpy as np
 import pandas as pd
@@ -102,6 +95,38 @@ class Tradingenv(gym.Env):
         return observation,info
     
     def step(self,action):
+        '''
+        The agent takes a step in the environment.
+
+        Parameters:
+            action (list): an action provided by the environment
+
+        Returns:
+            observation (list): agent's observation of the current environment
+            reward (float) : amount of reward returned after previous action
+            done (bool): whether the episode has ended, in which case further step() calls will return undefined results
+            info (dict): diagnostic information useful for debugging. 
+        '''
+        #action field: [action,position]
+        #action: 0 -> hold, 1 -> buy, 2 -> sell
+        #position: (size of position)
+        act,pos = action
+        #data of price
+        if self.mode == "Orderbook":#current price, bid, ask
+            idx_data = self.data.iloc[self.idx]
+            bid = idx_data["bid"] #list
+            ask = idx_data["ask"] #list
+            closeprice = (bid[0] + ask[0]) / 2
+        elif self.mode == "Candlestick":#open, high, low, close, volume
+            idx_data = self.data.iloc[self.idx]
+            openprice = idx_data["open"]
+            highprice = idx_data["high"]
+            lowprice = idx_data["low"]
+            closeprice = idx_data["close"]
+            volume = idx_data["volume"]
+        else:
+            raise ValueError("mode should be set as Orderbook or Candlestick")
+
         return observation,reward,done,info
     
     def render(self,mode='human'):
