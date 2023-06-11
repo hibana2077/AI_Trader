@@ -47,7 +47,8 @@ This is a side project I am working on to learn more about reinforcement learnin
 │   │   ├── collect_data.py
 │   │   ├── preprocess_data.py
 |   |   ├── DQN.py
-│   │   └── TradingEnv.py
+|   |   ├── TradingEnv.py
+│   │   └── Transformer.py
 |   ├── train
 │   │   ├── train.py
 │   │   └── model.py
