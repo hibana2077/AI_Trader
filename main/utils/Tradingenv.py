@@ -127,6 +127,10 @@ class Tradingenv(gym.Env):
         else:
             raise ValueError("mode should be set as Orderbook or Candlestick")
         #caculate profit
+        if self.position == 0:#no position
+            if act == 1:#buy
+                if size*closeprice > self.balance:
+                    reward = 0
 
         return observation,reward,done,info
     
