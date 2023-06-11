@@ -107,10 +107,10 @@ class Tradingenv(gym.Env):
             done (bool): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): diagnostic information useful for debugging. 
         '''
-        #action field: [action,position]
+        #action field: [action,size]
         #action: 0 -> hold, 1 -> buy, 2 -> sell
-        #position: (size of position)
-        act,pos = action
+        #size: (size of position)
+        act,size = action
         #data of price
         if self.mode == "Orderbook":#current price, bid, ask
             idx_data = self.data.iloc[self.idx]
@@ -126,6 +126,7 @@ class Tradingenv(gym.Env):
             volume = idx_data["volume"]
         else:
             raise ValueError("mode should be set as Orderbook or Candlestick")
+        #caculate profit
 
         return observation,reward,done,info
     
