@@ -45,5 +45,26 @@
 # asyncio.get_event_loop().run_until_complete(close_exchange(exchange=exchange))
 # asyncio.get_event_loop().close()
 
-x,y=[1,4]
-print(x,y)
+import gym
+import gym_anytrading
+from gym_anytrading.envs import TradingEnv, ForexEnv, StocksEnv, Actions, Positions 
+from gym_anytrading.datasets import FOREX_EURUSD_1H_ASK, STOCKS_GOOGL
+import matplotlib.pyplot as plt
+
+env = gym.make('forex-v0', frame_bound=(50, 100), window_size=10)
+# env = gym.make('stocks-v0', frame_bound=(50, 100), window_size=10)
+
+observation = env.reset()
+print(observation)
+# while True:
+#     observation = env.reset()
+#     action = env.action_space.sample()
+#     observation, reward, done, _, info = env.step(action)
+#     env.render()
+#     if done:
+#         print("info:", info)
+#         break
+
+# plt.cla()
+# env.render()
+# plt.show()

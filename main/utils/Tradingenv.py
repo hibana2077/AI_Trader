@@ -94,7 +94,7 @@ class Tradingenv(gym.Env):
         info = {}
         return observation,info
     
-    def step(self,action):
+    def step(self,action:list):
         '''
         The agent takes a step in the environment.
 
