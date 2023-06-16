@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 async def close_exchange(exchange:ccxtpro.Exchange):
     """Close exchange"""
-    await exchange.close()
+    await exchange.close() # type: ignore
     logger.info('exchange closed.')
 
 async def get_orderbook(data:dict,exchange:ccxtpro.Exchange,data_length:int):
@@ -22,7 +22,7 @@ async def get_orderbook(data:dict,exchange:ccxtpro.Exchange,data_length:int):
     s = t.time()
     for idx in range(data_length):
         try:
-            orderbook = await exchange.watch_order_book('SUI/USDT')
+            orderbook = await exchange.watch_order_book('SUI/USDT') # type: ignore
             if DEBUG:
                 logger.info(orderbook)
             asks = orderbook['asks']
