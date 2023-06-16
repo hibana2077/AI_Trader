@@ -45,22 +45,48 @@
 # asyncio.get_event_loop().run_until_complete(close_exchange(exchange=exchange))
 # asyncio.get_event_loop().close()
 
-from sklearn.cluster import KMeans
-from sklearn.datasets import make_blobs
-import matplotlib.pyplot as plt
+# from sklearn.cluster import KMeans
+# from sklearn.datasets import make_blobs
+# import matplotlib.pyplot as plt
 
-# 生成範例數據
-data, _ = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=0)
+# # 生成範例數據
+# data, _ = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=0)
 
-# 使用 KMeans 演算法，假設有4個集群
-kmeans = KMeans(n_clusters=4)
-kmeans.fit(data)
+# # 使用 KMeans 演算法，假設有4個集群
+# kmeans = KMeans(n_clusters=4)
+# kmeans.fit(data)
 
-# 預測每個數據點的集群
-pred = kmeans.predict(data)
+# # 預測每個數據點的集群
+# pred = kmeans.predict(data)
 
-# 繪製結果
-plt.scatter(data[:, 0], data[:, 1], c=pred, s=50, cmap='viridis')
-centers = kmeans.cluster_centers_
-plt.scatter(centers[:, 0], centers[:, 1], c='black', s=200, alpha=0.5)
-plt.show()
+# # 繪製結果
+# plt.scatter(data[:, 0], data[:, 1], c=pred, s=50, cmap='viridis')
+# centers = kmeans.cluster_centers_
+# plt.scatter(centers[:, 0], centers[:, 1], c='black', s=200, alpha=0.5)
+# plt.show()
+
+
+# import gym
+# from stable_baselines3 import PPO
+
+# env = gym.make('MountainCar-v0')
+# env.reset()
+
+# model = PPO('MlpPolicy', env, verbose=1)
+# model.learn(total_timesteps=10000)
+
+# episodes = 10
+
+# for episode in range(1, episodes+1):
+#     state = env.reset()
+#     done = False
+#     score = 0
+
+#     while not done:
+#         env.render()
+#         action, _ = model.predict(state)
+#         n_state, reward, done, info = env.step(action)
+#         score += reward
+#         state = n_state
+#     print('Episode:{} Score:{}'.format(episode, score))
+#     env.close()
