@@ -1,0 +1,12 @@
+openai
+ccxt
+tensorflow
+scikit-learn
+torch
+torchvision
+torchaudio
+box2d-py
+box2d
+pygame
+gym[all]
+stable-baselines3[extra]
