@@ -112,3 +112,5 @@ if __name__ == '__main__':
     logger.info('start saving data')
     save_data(df, symbol, timeframe)
     logger.info('data saved')
+
+#Example: python collect_price_data.py --symbol BTC/USDT --timeframe 4h --start_time "2020-01-01 00:00:00" --end_time "2023-01-01 00:00:00"
