@@ -22,6 +22,7 @@ parser.add_argument('--symbol', type=str, default='BTC/USDT')
 parser.add_argument('--timeframe', type=str, default='4h')
 parser.add_argument('--start_time', type=str, default='2020-01-01 00:00:00')
 parser.add_argument('--end_time', type=str, default='2023-01-01 00:00:00')
+parser.add_argument('--save_path', type=str, default='./data')
 
 args = parser.parse_args()
 
@@ -86,8 +87,10 @@ def get_data(exchange:Exchange,
 
 #set up data saver
 
-def save_data(df:pd.DataFrame, symbol:str, timeframe:str):
-    df.to_csv(f'./data/{symbol.replace("/", "")}_{timeframe}.csv')
+def save_data(df:pd.DataFrame, symbol:str, timeframe:str, save_path:str):
+    symbol = symbol.replace('/','')
+    logger.info(f'saving data to {save_path}/{symbol}_{timeframe}.csv')
+    df.to_csv(f'{save_path}/{symbol}_{timeframe}.csv')
 
 #Basic data check
 
@@ -110,7 +113,7 @@ if __name__ == '__main__':
     logger.info('data get')
     data_checker(df)
     logger.info('start saving data')
-    save_data(df, symbol, timeframe)
+    save_data(df, symbol, timeframe, args.save_path)
     logger.info('data saved')
 
-#Example: python collect_price_data.py --symbol BTC/USDT --timeframe 4h --start_time "2020-01-01 00:00:00" --end_time "2023-01-01 00:00:00"
+#Example: python collect_price_data.py --symbol BTC/USDT --timeframe 4h --start_time "2020-01-01 00:00:00" --end_time "2023-01-01 00:00:00" --save_path ./data

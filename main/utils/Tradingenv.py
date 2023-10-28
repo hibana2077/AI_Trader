@@ -1,139 +1,99 @@
-
 import gym
 import numpy as np
 import pandas as pd
-import arrow
-import random
-import sys
-from plotly.graph_objects import Figure, Scatter, Candlestick
-from gym.envs.registration import register
-from gym import error, spaces, utils
+from gym import spaces
+from backtesting import Backtest, Strategy
 
+def process_observations(df:pd.DataFrame):
+    # Add your own logic here
+    return df.values
 
-"""
-init
-    - data: pd.DataFrame
-    - fee: float
-    - slippage: float
-    - initial_balance: float
-    - position: float
-    - entry_price: float
-reset
-    return observation,info
-        observation: np.array([balance,position])
-step
-render
-"""
+# Strategy is for calculating reward
+def SIGNAL(df):
+    return df['SIGNAL']
 
-"""
-position:
-    + -> long
-    - -> short
-    0 -> no position
-"""
+def QUANTITY(df):
+    return df['QUANTITY']
 
-class Tradingenv(gym.Env):
-    def __init__(self,data:pd.DataFrame,fee:float,initial_balance:float,slippage:float,mode:str) -> None:
+def REVERSING(df):
+    return df['REVERSING']
+
+class Scalping_Strategy(Strategy):
+    def init(self):
+        super().init() 
+        self.signal = self.I(SIGNAL, self.data)
+        self.quantity = self.I(QUANTITY, self.data)
+        self.reversing = self.I(REVERSING, self.data)
+
+    def next(self):
+        super().next()
+
+        size_pre = round((float(self.quantity[-1])*self.equity)/float(self.data.Close[-1]))
+        if self.reversing == 1:
+            self.position.close()
+
+        if self.signal == 1:
+            self.buy(size=size_pre)
+        elif self.signal == 2:
+            self.sell(size=size_pre)
+
+class CryptoTradingEnv(gym.Env):
+    def __init__(self, df:pd.DataFrame):
+        self.df:pd.DataFrame = df
+        self.current_step:int = 0
+        self.window_size:int = 50
+        self.init_cash:float = 10000
+        self.commision:float = 0.0005
+        self.df['SIGNAL'] = 0
+        self.df['QUANTITY'] = 0
+        self.df['REVERSING'] = 0
         
-        self.init_date = data.index[0]
-
-        self.data = data
-        self.fee = fee
-        self.initial_balance = initial_balance
-        self.balance = initial_balance
-        self.slippage = slippage
-        self.position = 0.0
-        self.entry_price = 0.0
-        self.idx = 0
-        self.mode = mode #"Orderbook" or "Candlestick"
-
-        self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(low=0,high=1,shape=(2,))
-        self.reset()
+        # Improved observation space *len need to add a number of other indicators(final equity, trades...)
+        self.observation_space = spaces.Box(low=-1, high=1, shape=(self.window_size, len(self.df.columns)), dtype=np.float32)
         
-    def _caculate_profit(self,closeprice:int):
-        """計算收益"""
-        profit = self.position * (closeprice - self.entry_price)
-        #if -(short) -> -15 * (90 - 120) = 450
-        #if +(long) -> 15 * (120 - 90) = 450
-        #既可以計算多單也可以計算空單，還不用加abs
-        #totalfee
-        totalfee = self.fee * (self.position * (self.entry_price + closeprice))
-        #totalfee = 0.0004 * (15 * (90 + 120)) = 0.0004 * 15 * 210 = 1.26
-        #totalfee = 0.0004 * (15 * (120 + 90)) = 0.0004 * 15 * 210 = 1.26
-        return profit - totalfee
+        # Continuous action space ((buy , sell , hold), quantity of percentage, reversing trade)
+        # Reversing trade will close current trade and open a new trade with opposite direction
+        # (0,0,0) = hold , (1,1,0) = buy 100% , (2,0.5,1) = sell 50% and reversing trade
+        self.action_space = spaces.Box(low=0, high=2, shape=(3,), dtype=np.float32)
+        
+    def step(self, action):
+        # Execute trade based on action
+        # action = [action(int), quantity(float), reversing(int)]
+        now_index = self.current_step + self.window_size
+        self.df.loc[now_index, 'SIGNAL'] = action[0]
+        self.df.loc[now_index, 'QUANTITY'] = action[1]
+        self.df.loc[now_index, 'REVERSING'] = action[2]
 
-    def reset(self):
-        '''
-        Reset the state of the environment and returns an initial observation.
-        Returns:
-            observation (list): the initial observation.
-            info (dict): diagnostic information useful for debugging.'''
-        self.balance = self.initial_balance
-        self.position = 0
-        self.entry_price = 0
-        self.idx = 0
+        temp_data = self.df.iloc[self.current_step:now_index+1]
 
-        #data of price
-        if self.mode == "Orderbook":#current price, bid, ask
-            idx_data = self.data.iloc[self.idx]
-            bid = idx_data["bid"] #list
-            ask = idx_data["ask"] #list
-            closeprice = (bid[0] + ask[0]) / 2
-            observation = np.array([self.balance,self.position,closeprice,bid,ask])
-        elif self.mode == "Candlestick":#open, high, low, close, volume
-            idx_data = self.data.iloc[self.idx]
-            openprice = idx_data["open"]
-            highprice = idx_data["high"]
-            lowprice = idx_data["low"]
-            closeprice = idx_data["close"]
-            volume = idx_data["volume"]
-            observation = np.array([self.balance,self.position,openprice,highprice,lowprice,closeprice,volume])
-        else:
-            raise ValueError("mode should be set as Orderbook or Candlestick")
+        bt = Backtest(temp_data, Scalping_Strategy, cash=self.init_cash, commission=self.commision, exclusive_orders=True)
+        stats = bt.run()
+        
+        # Calculate reward with custom logic
+        reward = self.calculate_reward(action)
+        
         info = {}
-        return observation,info
-    
-    def step(self,action:list):
-        '''
-        The agent takes a step in the environment.
-
-        Parameters:
-            action (list): an action provided by the environment
-
-        Returns:
-            observation (list): agent's observation of the current environment
-            reward (float) : amount of reward returned after previous action
-            done (bool): whether the episode has ended, in which case further step() calls will return undefined results
-            info (dict): diagnostic information useful for debugging. 
-        '''
-        #action field: [action,size]
-        #action: 0 -> hold, 1 -> buy, 2 -> sell
-        #size: (size of position)
-        act,size = action
-        #data of price
-        if self.mode == "Orderbook":#current price, bid, ask
-            idx_data = self.data.iloc[self.idx]
-            bid = idx_data["bid"] #list
-            ask = idx_data["ask"] #list
-            closeprice = (bid[0] + ask[0]) / 2
-        elif self.mode == "Candlestick":#open, high, low, close, volume
-            idx_data = self.data.iloc[self.idx]
-            openprice = idx_data["open"]
-            highprice = idx_data["high"]
-            lowprice = idx_data["low"]
-            closeprice = idx_data["close"]
-            volume = idx_data["volume"]
+        
+        # Check if episode is done
+        self.current_step += 1
+        if self.current_step > len(self.df)-1:
+            done = True
         else:
-            raise ValueError("mode should be set as Orderbook or Candlestick")
-        #caculate profit
-        if self.position == 0:#no position
-            if act == 1:#buy
-                if size*closeprice > self.balance:
-                    reward = 0
-
-        return observation,reward,done,info
+            done = False
+            
+        return self._next_observation(), reward, done, info
     
-    def render(self,mode='human'):
-        """Using plotly to render the chart"""
-        pass
+    def _next_observation(self):
+        # Return processed observations
+        obs = process_observations(self.df.iloc[self.current_step])
+        return obs
+            
+    # Custom reward function
+    def calculate_reward(self, action): 
+        reward = 0
+        
+        return reward
+    
+    def reset(self):
+        self.current_step = 0
+        return self._next_observation()
