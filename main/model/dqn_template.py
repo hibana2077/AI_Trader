@@ -2,7 +2,7 @@
 Author: hibana2077 hibana2077@gmail.com
 Date: 2023-10-28 15:02:47
 LastEditors: hibana2077 hibana2077@gmail.com
-LastEditTime: 2023-11-16 23:18:33
+LastEditTime: 2023-11-21 00:01:35
 FilePath: \AI_Trader\main\model\model1.py
 Description: This is a template model for AI Trader, you can copy this file and rename it to your own model.
 '''
@@ -27,4 +27,4 @@ class DQN(nn.Module):
     def forward(self, x):
         x = F.relu(self.layer1(x))
         x = F.relu(self.layer2(x))
-        return self.layer3(x)
+        return F.softmax(self.layer3(x), dim=1)
