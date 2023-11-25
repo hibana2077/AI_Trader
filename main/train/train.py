@@ -17,6 +17,8 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+import utils.webhook_notify as notify
+
 # Constants
 DIR = "../../data"
 SYMBOL = "CRV/USDT" # you can change to any other symbol
@@ -279,56 +281,5 @@ plot_durations(show_result=True)
 plt.ioff()
 plt.show()
 
-import requests
-
-# Text result
-
-template = """
-====================
-Training Complete
-====================
-
-Portfolio Return: {return_value} %
-Training Time: {time} minutes
-"""
-
-data = {
-    "content": template.format(
-        return_value = Portfolio_Return.replace("%",""),
-        time = (end_time - start_time)/60
-    ),
-    "username": "ML Training Notification",
-    "avatar_url": "https://i.imgur.com/4bY31Fb.jpg"
-}
-
-r = requests.post(DISCORD_WEBHOOK_URL, data=data)
-
-if r.status_code != 204:
-    print(f"Discord Webhook returned status code {r.status_code}")
-else:
-    print("Text result Discord Webhook Sent")
-
-# image result
-
-files = {
-    "file": ("result.png", open("result.png", "rb"))
-}
-
-template = """
-====================
-Result Image
-====================
-"""
-
-data = {
-    "content": template,
-    "username": "ML Training Notification",
-    "avatar_url": "https://i.imgur.com/4bY31Fb.jpg"
-}
-
-r = requests.post(DISCORD_WEBHOOK_URL, data=data, files=files)
-
-if r.status_code != 200:
-    print(f"Discord Webhook returned status code {r.status_code}")
-else:
-    print("image result Discord Webhook Sent")
+notify.send_text_report(DISCORD_WEBHOOK_URL, end_time - start_time, env.unwrapped.get_metrics())
+notify.send_image_report(DISCORD_WEBHOOK_URL, "result.png")
