@@ -1,12 +1,23 @@
+'''
+Author: hibana2077 hibana2077@gmail.com
+Date: 2023-11-16 21:29:59
+LastEditors: hibana2077 hibana2077@gmail.com
+LastEditTime: 2023-11-25 11:13:39
+FilePath: \AI_Trader\main\train\train.py
+Description: This is a training script for DQN agent (CLI)
+'''
+import math
+import random
+import argparse
+import datetime
+import matplotlib
+import gym_trading_env
+
+import matplotlib.pyplot as plt
 import gymnasium as gym
 import pandas as pd
 import pandas_ta as ta
-import gym_trading_env
-import math
-import random
-import datetime
-import matplotlib
-import matplotlib.pyplot as plt
+
 from collections import namedtuple, deque
 from gym_trading_env.downloader import download
 from itertools import count
@@ -18,13 +29,32 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import utils.webhook_notify as notify
+import feature.data_processing as data_process
+
+# Arguments
+parser = argparse.ArgumentParser(description='Train a DQN agent on a single stock or crypto currency')
+parser.add_argument('--symbol', type=str, default='BTC/USDT', help='Symbol to train on (BTC/USDT, AAPL, etc)')
+parser.add_argument('--timeframe', type=str, default='1h', help='Timeframe to train on (5m, 15m, 1h, 4h, 1d, 1w, 1M)')
+parser.add_argument('--start_date', type=str, default='2023-10-10', help='Start date to train on (YYYY-MM-DD)')
+parser.add_argument('--exchange', type=str, default='binance', help='Exchange to train on (binance, bitfinex, bitmex, bitstamp, coinbasepro, huobi, kraken, kucoin, okex)')
+parser.add_argument('--discord_webhook_url', type=str, default='', help='Discord webhook url to send training results to')
+parser.add_argument('--dir', type=str, default='../../data', help='Directory to store data in (default: ../../data)')
+parser.add_argument('--initial_position', type=float, default=0, help='Initial position (default: 0)')
+parser.add_argument('--trading_fees', type=float, default=0.02/100, help='Trading fees (default: 0.0002)')
+parser.add_argument('--positions', type=list, default=[-0.8,-0.6,-0.4,-0.2,0,0.2,0.4,0.6,0.8], help='List of positions to train on (default: [-0.8,-0.6,-0.4,-0.2,0,0.2,0.4,0.6,0.8])')
+parser.add_argument('--window_size', type=int, default=0, help='Window size (default: 0)')
+args = parser.parse_args()
 
 # Constants
-DIR = "../../data"
-SYMBOL = "CRV/USDT" # you can change to any other symbol
-TIMEFRAME = "1h" # 5m 15m 1h 4h 1d 1w 1M
-EXCHANGE = "binance" # bitget binance bitfinex bitmex bitstamp coinbasepro huobi kraken kucoin okex
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/..."
+DIR = args.dir
+SYMBOL = args.symbol # BTC/USDT
+EXCHANGE = args.exchange # binance
+TIMEFRAME = args.timeframe # 1h
+POSITIONS = args.positions # [-0.8,-0.6,-0.4,-0.2,0,0.2,0.4,0.6,0.8]
+DISCORD_WEBHOOK_URL = args.discord_webhook_url
+INITIAL_POSITION = args.initial_position
+TRADING_FEES = args.trading_fees
+WINDOWS_SIZE = args.window_size if args.window_size > 0 else None
 
 # Download BTC/USDT historical data from Binance and stores it to directory ./data/binance-BTCUSDT-1h.pkl
 download(exchange_names = [EXCHANGE],
@@ -37,23 +67,9 @@ download(exchange_names = [EXCHANGE],
 df = pd.read_pickle(DIR+"/"+EXCHANGE+"-"+SYMBOL.replace("/","")+"-"+TIMEFRAME+".pkl")
 
 # Handle more feature
-df['feature_open'] = df['open']
-df['feature_high'] = df['high']
-df['feature_low'] = df['low']
-df['feature_close'] = df['close']
-df['feature_volume'] = df['volume']
-df['feature_LONGLINE'] = df.ta.cdl_pattern(name="longline")['CDL_LONGLINE']
-temp = df.ta.macd()
-df['feature_MACD'] = temp['MACD_12_26_9']   
-df['feature_MACD_SIGNAL'] = temp['MACDs_12_26_9']
-df['feature_MACD_HIST'] = temp['MACDh_12_26_9']
-df['feature_ATR'] = df.ta.atr()
-df['feature_ADX'] = df.ta.adx()['ADX_14']
-df = df.drop(columns=['date_close'])
-df = df.dropna()
+df = data_process.custom_ta(df)
 
-# env = gym.make("CartPole-v1") #need to switch to custom env
-env = gym.make("TradingEnv", df = df, positions = [-0.8,-0.6,-0.4,-0.2,0,0.2,0.4,0.6,0.8], initial_position= 0, trading_fees = 0.02/100)
+env = gym.make("TradingEnv", df = df, positions = POSITIONS, initial_position=INITIAL_POSITION, trading_fees=TRADING_FEES, window=WINDOWS_SIZE)
 
 _,info = env.reset()
 print(info.keys())
